@@ -296,7 +296,7 @@ export default class Graph {
 			// generate the imports and exports for the output chunk file
 			const chunk = new Chunk(this, orderedModules);
 			chunk.link();
-			chunk.generateEntryExports(false);
+			chunk.populateEntryExports(false);
 
 			timeEnd('generate chunks', 2);
 
@@ -447,7 +447,9 @@ export default class Graph {
 
 				// then go over and ensure all entry chunks export their variables
 				for (const chunk of chunkList) {
-					chunk.generateEntryExports(preserveModules);
+					if (chunk.entryModule) {
+						chunk.populateEntryExports(preserveModules);
+					}
 				}
 
 				// create entry point facades for entry module chunks that have tainted exports
