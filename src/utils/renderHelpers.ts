@@ -15,6 +15,7 @@ export interface NodeRenderOptions {
 	start?: number;
 	end?: number;
 	isNoStatement?: boolean;
+	hasBecomeCallee?: boolean;
 }
 
 export const NO_SEMICOLON: NodeRenderOptions = { isNoStatement: true };

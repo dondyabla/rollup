@@ -8,9 +8,11 @@ import {
 } from './shared/Expression';
 import { NodeType } from './NodeType';
 import { ExpressionNode, NodeBase } from './shared/Node';
-import { RenderOptions } from '../../utils/renderHelpers';
+import { NodeRenderOptions, RenderOptions } from '../../utils/renderHelpers';
 import MagicString from 'magic-string';
 import Scope from '../scopes/Scope';
+import { isCallExpression } from './CallExpression';
+import { BLANK } from '../../utils/object';
 
 export type LogicalOperator = '||' | '&&';
 
@@ -98,7 +100,11 @@ export default class LogicalExpression extends NodeBase {
 		}
 	}
 
-	render(code: MagicString, options: RenderOptions) {
+	render(
+		code: MagicString,
+		options: RenderOptions,
+		{ hasBecomeCallee }: NodeRenderOptions = BLANK
+	) {
 		if (!this.module.graph.treeshake) {
 			super.render(code, options);
 		} else {
@@ -108,7 +114,10 @@ export default class LogicalExpression extends NodeBase {
 				const branchToRetain = this.left.included ? this.left : this.right;
 				code.remove(this.start, branchToRetain.start);
 				code.remove(branchToRetain.end, this.end);
-				branchToRetain.render(code, options);
+				branchToRetain.render(code, options, {
+					hasBecomeCallee:
+						hasBecomeCallee || (isCallExpression(this.parent) && this.parent.callee === this)
+				});
 			}
 		}
 	}
